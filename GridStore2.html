@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Locator</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        #container {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            width: 100%;
+            align-items: center;
+        }
+
+        #search-container {
+            margin-bottom: 20px;
+            width: 50%; /* Smaller width for search bar */
+        }
+
+        #search-bar {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            box-sizing: border-box;
+            text-align: center; /* Centered text in search bar */
+        }
+
+        #filter-buttons {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center; /* Centered filter buttons */
+        }
+
+        .filter-button {
+            padding: 10px 15px;
+            margin-right: 5px;
+            margin-bottom: 10px;
+            background-color: #ff1100;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .filter-button:hover {
+            background-color: #0056b3;
+        }
+
+        #store-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .store-card {
+            background: #000000;
+            padding: 15px;
+            border-radius: 25px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .store-card h3 {
+            margin: 0;
+            color:white;
+            font-size: 18px;
+        }
+
+        .store-card p {
+            margin: 5px 0;
+            color: #aaaaaa;
+        }
+
+        .store-card button {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius:20px;
+            cursor: pointer;
+        }
+
+        .store-card button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="search-container">
+            <input type="text" id="search-bar" placeholder="Search Store">
+        </div>
+        <div id="filter-buttons"></div>
+        <div id="store-list"></div>
+    </div>
+
+    <script>
+        // Store data extracted from the CSV file
+        const stores = [
+    { name: 'D H SPORTS', address: 'GF A-1/369 SEC 17 ROHINI, NEW DELHI 110085', 
+    city: 'New Delhi', state: 'New Delhi', description: '', 
+    website: 'https://maps.app.goo.gl/HxPQ2VgLQ5vRWkTLA',
+     phone: '9643445585' },
+
+     { name: 'GUPTA SPORTS', address: '1551/1, DINANATH BUILDING, SUBZI MANDI, CLOCK TOWER . DELHI- 110007', 
+    city: 'New Delhi', state: 'New Delhi', description: '', 
+    website: 'https://maps.app.goo.gl/kdLug6CgjftrPd5V9',
+     phone: '9810500784' },
+
+     { name: 'Shiv Naresh', address: 'E 23 KARMPURA, DELHI- 110015', 
+    city: 'New Delhi', state: 'New Delhi', description: '', 
+    website: 'https://maps.app.goo.gl/y3j4VGJwwAwcjVjS7',
+     phone: '8595322208' },
+
+     { name: 'SACHDEVA RETAILS', address: 'GF SHOP NO. 1 SHREE NATH PLAZA, MAHENDRAGARH HARYANA- 123001', 
+    city: 'MAHENDRAGARH', state: 'Haryana', description: '', 
+    website: 'https://maps.app.goo.gl/b33BKEYjutxMPLqs8',
+    mail:"shivnareshnarnaul@gmail.com",
+     phone: '9636342630' },
+
+     { name: 'BSS ENTERPRISES', address: 'Kacheri Chowk NH -10,Santiniketan Hansi- Haryana-125033', 
+        city: 'Santiniketan Hansi', state: 'Haryana', description: '', 
+        mail:"shivnareshstorehansi@gmail.com",
+        phone: '9466529148',
+        website: 'Santiniketan Hansi',
+     },
+
+     { name: 'JAI MATA TRANDING CO.', address: ' Charkhi- Dadri Luharu road near Majban Chok, Jai Hind Hospital wali side. Charkhi Dadri-Haryana- 127306', 
+        city: 'Dadri', state: 'Haryana', description: '',
+
+        mail:"ns.charkhidadri@gmail.com",
+        phone: '9728587764 (9671454396)',
+        website: 'https://maps.app.goo.gl/oMgk5yS2SmueAWQ59',
+     },
+    
+     { name: 'M/S DEEPAK TRADERS', address: 'CR COLLEGE RAILWAY ROAD PATIALA CHOWK. JIND, HARYANA -126102', 
+        city: 'JIND', state: 'Haryana', description: '', 
+        mail:"deepak.batra1993@gmail.com",
+        phone: '9991331142',
+        website: 'https://maps.app.goo.gl/6igV7wpVxHA7uQ8UA',
+     },
+
+     { name: 'RAJPAL RETAILS', address: 'SHOP 2 GF SOHNA ROAD SUBHAS CHOWK BADSHAHPUR SOHNA ROAD OPP OMEX CELEBRATION MALL', 
+        city: 'BADSHAHPUR', state: 'Haryana', description: '', 
+        mail:"herofirefoxggn@gmail.com",
+        phone: '9212088815',
+        website: 'https://maps.app.goo.gl/M8erLHuf2RfSq62w7',
+     },
+
+     { name: 'DAGAR ENTERPRISES', address: 'NEAR BY BIKANER MISTAN BHANDAR NAHAR ROAD. KOSLI , HARYANA-1233302', 
+        city: 'KOSLI', state: 'Haryana', description: '', 
+        mail:"Kosli.calcetto@gmail.com",
+        phone: '9416295880',
+        website: 'https://maps.app.goo.gl/gXhLXzMB14ixQRcg6',
+     },
+
+     { name: 'SHOE BOX RATIA', address: 'Gods Club, Opp. SBI Bank, Tohana Road , Distt Fatehabad, Ratia-Haryana- 125051', 
+        city: 'Ratia', state: 'Haryana', description: '', 
+        mail:"shivnareshratia@gmail.com",
+        phone: '8708276195',
+        website: 'https://maps.app.goo.gl/gXhLXzMB14ixQRcg6',
+     },
+
+     { name: 'SHOE BOX RATIA', address: 'Gods Club, Opp. SBI Bank, Tohana Road , Distt Fatehabad, Ratia-Haryana- 125051', 
+        city: 'Ratia', state: 'Haryana', description: '', 
+        mail:"shivnareshratia@gmail.com",
+        phone: '8708276195',
+        website: 'https://maps.app.goo.gl/gXhLXzMB14ixQRcg6',
+     },
+
+     { name: 'T G SALES', address: 'CH DEVI LAL STADIUM OPP SBI BANK GOHANA, DISTT SONIPAT, HARYANA- 131301', 
+        city: 'GOHANA', state: 'Haryana', description: '', 
+        mail:"tgsales.gohana@gmail.com",
+        phone: '9017177128',
+        website: 'https://maps.app.goo.gl/YLY9vkr5BmbiCzm19',
+     },
+
+     { name: 'SHRI BANARSI DASS ENTERPRISES', address: 'Sco-1 Ground floor, crown Plaza, old bus stand .Bhiwani Haryana- 127021', 
+        city: 'GOHANA', 
+        state: 'Haryana', 
+        description: '', 
+        mail:'shivnareshbhiwani@gmail.com',
+        phone: '8059016331',
+        website: 'https://maps.app.goo.gl/5CtjFYz4X2BQ1G1SA',
+     },
+
+     { name: 'YOUR LIFESTYLE', address: 'VIJAY SETH MARKET OPP SANJEEVANI HOSPITAL AMBALA ROAD. KAITHAL- HARYANA- 751002', 
+        city: 'KAITHAL', 
+        state: 'Haryana', 
+        description: '', 
+        mail:'trenzkaithal30@gmail.com',
+        phone: '9996863915',
+        website: 'https://maps.app.goo.gl/UMAoiaZFL1DoLmsV6',
+     },
+
+     { name: 'SS ASSOCIATES', address: 'SHOP NO 17 BLOCK A HISAR DELHI BYPASS ROAD NH10 FACTORY OUTLETS GANGWA .HISAR, HARYANA- 125001', 
+        city: 'HISAR', 
+        state: 'Haryana', 
+        description: '', 
+        mail:'trenzkaithal30@gmail.com',
+        phone: '9138409991',
+        website: 'https://maps.app.goo.gl/jB7xGv8KX3t6xCQm9',
+     },
+
+     { name: 'Maxort India Pvt Ltd', address: 'Near Pasco Automobils Sec 85.', 
+        city: 'Haryana', 
+        state: 'Haryana', 
+        description: '', 
+        mail:'mohit83yadav@gmail.com',
+        phone: '9891999381',
+        website: 'https://maps.app.goo.gl/SHm9WVMidf9diGcD6',
+     },
+     { name: 'JAI HO TRANDING CO.', address: 'NEAR MUTHOOT AND HDFC BANK, ROHTAK ROAD. BHIWANI MAIN ROAD. KALANAUR, ROHTAK- HARYANA-124113', 
+        city: 'BHIWANI', 
+        state: 'Haryana', 
+        description: '', 
+        mail:'shivnaresh733@gmail.com',
+        phone: '9991111475',
+        website: 'https://maps.app.goo.gl/SHm9WVMidf9diGcD6',
+     },
+     { name: 'BALAZ TRANDING CO.', address: 'NEW ROHTAK ROAD, OPP, PNB BANK, NEXT TO DOMINOS, BANK LINE, JHAJJAR, HARYANA- 124103', 
+        city: 'JHAJJAR,', 
+        state: 'Haryana', 
+        description: '', 
+        mail:'Shivnaresh975@gmail.com',
+        phone: '7015136143',
+        website: 'https://maps.app.goo.gl/iMkQoQt3CtxujfDA6',
+     },
+
+     { name: 'PUMISH ENTERPRISES (OPC) PVT LTD', address: 'Jhajjar Chungi Circuler ROAD Kamla Nagar Opp Krishana Shop Factory Rohtak -Haryana-124001', 
+        city: 'Rohtak', 
+        state: 'Haryana', 
+        description: '', 
+        mail:'shivnareshrohtak@gmail.com',
+        phone: '9896982292',
+        website: 'https://maps.app.goo.gl/PKFrbASgcrZvGEjt8',
+     },
+
+     { name: 'PUMISH ENTERPRISES (OPC) PVT LTD', address: '8 MARLA, MODAL TOWN, NEAR PUNJAB NATIONAL BANK, SONIPAT-HARYANA - 131001', 
+        city: 'Rohtak', 
+        state: 'Haryana', 
+        description: '', 
+        mail:'shivnareshsonipat@gmail.com',
+        phone: '7082928911',
+        website: 'https://maps.app.goo.gl/5NhBPbLiMn1BzNZd8 ',
+     },
+
+     { name: 'SHRI RAM ENTERPRISES', address: 'Shop no 54, New Parbhakar Colony, Chandigarh Road. Tohana Haryana-125120', 
+        city: 'Tohana', 
+        state: 'Haryana', 
+        description: '', 
+        mail:'trenztohana@gmail.com',
+        phone: '7009296129',
+        website: 'https://maps.app.goo.gl/aGvapJ3dsg4pUQ1L9',
+     },
+
+     { name: 'SHREE GOPAL ENTERPRISES', address: 'Hasanapur Chowk Opp HDFC BANK Near Nanak Dairy Road. Hodal, Palwal- Haryana- 121106', 
+        city: 'Rohtak', 
+        state: 'Haryana', 
+        description: '', 
+        mail:'Ds708011@gmail.com',
+        phone: '8053540807',
+        website: 'https://maps.app.goo.gl/byjeStpPTceAjETU8',
+     },
+
+     { name: 'Matana Enterprises', address: 'Khewat No.-265, Killa No. -73, Delhi - Rohtak Road, Metro Pillar No.- 807, Bahadurgarh, Jhajjar,', 
+        city: 'Jhajjar', 
+        state: 'Haryana', 
+        description: '', 
+        mail:'matanaenterprises@gmail.com',
+        phone: '9354993799',
+        website: 'https://maps.app.goo.gl/fgUN9cCrB43k8BnR6',
+     },
+
+     { name: 'SRI LAKSHMI ENTERPRISES', address: 'Sun school, 8-2-26, P.W MARKTET, Daba Gardens Area, Santha Pet, Vizianagaram, Andhra Pradesh 535001', 
+        city: 'Vizianagaram', 
+        state: 'Andhra Pradesh', 
+        description: '', 
+        mail:'srilakshmienterpriseslottovzm@gmail.com',
+        phone: '9900394187',
+        website: 'https://maps.app.goo.gl/imoYhvpTGNJsgxk76',
+     },
+
+     { name: 'HORNBILL GUST HOUSE', address: 'Nirjuli Complex, Nirjuli, Papum Pare Itanagar. AP- 791109', 
+        city: 'Itanagar', 
+        state: 'Arunachal Pradesh', 
+        description: '', 
+        mail:'shivnaresharunachal@gmail.com',
+        phone: '8259926689',
+        website: 'https://maps.app.goo.gl/imoYhvpTGNJsgxk76',
+     },
+
+     { name: 'M/S NOVA APPAREL', address: 'BUILDING NO 436 Opp LIC Building K B ROAD .JORHAT ,ASSAM -785001', 
+        city: 'JORHAT', 
+        state: 'ASSAM', 
+        description: '', 
+        mail:'shibnareshjorhat@gmail.com',
+        phone: '9101870971',
+        website: 'https://maps.app.goo.gl/imoYhvpTGNJsgxk76',
+     },
+
+     { name: 'A Unit of Dhanani Shoes PVT. LTD', address: 'G.S. Road, Bhangagarh, Guwahati-Assam- 781005.', 
+        city: ' Bhangagarh', 
+        state: 'ASSAM', 
+        description: '', 
+        mail:'shibnareshjorhat@gmail.com',
+        phone: '9854245972',
+        website: 'https://maps.app.goo.gl/qXxt1fMMwkiHY9gaA'
+     },
+
+     { name: 'Shiv Logistic', address: 'Indra Puri market. Arrah Bhojpur Bihar- 802301', 
+        city: 'Arrah Bhojpur', 
+        state: 'Bihar', 
+        description: '', 
+        mail:'shivnaresh.ara@gmail.com',
+        phone: '8603640802',
+        website: 'https://maps.app.goo.gl/exMhZ6j9frE1UxXz8'
+     },
+
+     { name: 'STOP N SHOP', address: 'CENTRAL BANK CINEMA ROAD ANWARPUR CHOWK HAJIPUR-BIHAR- 844101', 
+        city: 'ANWARPURl', 
+        state: 'Bihar', 
+        description: '', 
+        mail:'stopnshop98@gmail.com',
+        phone: '9386897306',
+        website: 'https://maps.app.goo.gl/fVJHurqCaBL9pjFt6'
+     },
+
+     { name: 'A AND U TRADING', 
+        address: 'A AND U TRADING NEAR SIR SYED MARKET JAMIA MASJID GOGJO BAGH. SRINAGAR, JAMMU AND KASHMIR- 190008', 
+        city: 'SRINAGAR', 
+        state: 'JAMMU AND KASHMIR', 
+        description: '', 
+        mail:'',
+        phone: '9622888885',
+        website: 'https://maps.app.goo.gl/GhquE4xHeURASbSf8'
+     },
+
+     { name: 'GLAMZONE APPARELS PRIVATE LIMITED', 
+        address: '14 Janpath, Bapuji Nagar, Near RBL Bank Bhubaneswar Odisha-751009', 
+        city: 'Bhubaneswar', 
+        state: 'Odisha', 
+        description: '', 
+        mail:'glamzone.odisha@gmail.com',
+        phone: '824936074',
+        website: 'https://maps.app.goo.gl/GhquE4xHeURASbSf8'
+     },
+
+     { name: 'M/S HARSH APPEARLS', 
+        address: 'RR COMPLEX, KHETRI MOD, NEEM KA THANA,DISTT. NEEM KA THANA, RAJASTHAN- 332713 (RJ)', 
+        city: 'NEEM KA THANA', 
+        state: 'Rajasthan',     
+        description: '', 
+        mail:'Surendrasingh063@gmail.com',
+        phone: '7737050634',
+        website: 'https://maps.app.goo.gl/49kkfLxYAGiNZsjw6 '
+     },
+
+     { name: 'SHEIKH ENTERPRISES', 
+        address: 'M/S Sheikh Enterprises , Shiv Naresh. Sikar- opp Sanjay Restaurant Piprali Road . Sikar- Rajasthan- 332001', 
+        city: 'Sikar', 
+        state: 'Rajasthan',     
+        description: '', 
+        mail:'shivnareshtrenzsikar@gmail.com',
+        phone: '8279254786',
+        website: 'https://maps.app.goo.gl/YCLjt3GCu8F3xtNv7'
+     },
+
+     { name: 'SHEIKH ENTERPRISES', 
+        address: 'Shop No 6 & 106 Near Railway Crossing Gudh Mod, Jhunjunu, Rajashthan-333001', 
+        city: 'Jhunjunu', 
+        state: 'Rajasthan',     
+        description: '', 
+        mail:'shreebalaji1641@gmail.com',
+        phone: '8059070197',
+        website: 'https://maps.app.goo.gl/J9VmgXsUQHjEtQ4NA'
+     },
+
+     { name: 'SHIVAA TRENDS', 
+        address: 'Podar College Road. Nawalgarh. Rajasthan- 333042', 
+        city: 'Nawalgarh', 
+        state: 'Rajasthan',     
+        description: '', 
+        mail:'Uunawalgarh@gmail.com',
+        phone: '9414581185',
+        website: 'https://maps.app.goo.gl/mD3DruhhGAfRzsvr6'
+     },
+
+     { name: 'AVENIR STYLE', 
+        address: 'PLOT NO 14, UPPER GROUND FLOOR. NEAR KARGIL PETROL PUMP. SHASTRIPURAM ROAD, SIKANDRA - BAHISTABAD AGRA- U.P.- 282007', 
+        city: 'AGRA', 
+        state: 'Uttar Pradesh',     
+        description: '', 
+        mail:'shivnareshagra2@gmail.com',
+        phone: '9716116714',
+        website: 'https://maps.app.goo.gl/LRKPdYyzNNsHi3ubA'
+     },
+
+     { name: 'AVENIR STYLE', 
+        address: 'PLOT NO 14, UPPER GROUND FLOOR. NEAR KARGIL PETROL PUMP. SHASTRIPURAM ROAD, SIKANDRA - BAHISTABAD AGRA- U.P.- 282007', 
+        city: 'AGRA', 
+        state: 'Uttar Pradesh',     
+        description: '', 
+        mail:'shivnareshagra2@gmail.com',
+        phone: '9716116714',
+        website: 'https://maps.app.goo.gl/LRKPdYyzNNsHi3ubA'
+     },
+
+     { name: 'RETAIL FIRST EDGE PRIVATE LIMITED', 
+        address: 'GT ROAD OPP AGARWAL PETROL PUMP WITH ALLEN SOLLY SHOWROOM ETAH, u.p.', 
+        city: 'ETAH', 
+        state: 'Uttar Pradesh',     
+        description: '', 
+        mail:'sns@shivnaresh.in',
+        phone: '9258344181',
+        website: 'https://maps.app.goo.gl/Yr5ShMh2kw7LUMSb9'
+     },
+
+     { name: 'Shiv Naresh Siliguri', 
+        address: 'Dist- Jalpaiguri, Raja Ram Mohan Roy Road East Vivekananda Polly Deb Gita Apartment Sanghari More Siliguri-WB- 734006', 
+        city: 'Siliguri', 
+        state: 'West Bengal',     
+        description: '', 
+        mail:'sarbanibasak1988@gmail.com',
+        phone: '7908846581',
+        website: 'https://maps.app.goo.gl/Go6eDuwSicKaZcUQ9'
+     },
+
+
+     
+
+
+     
+
+     
+
+    
+
+
+
+
+
+
+    { name: 'SUNSHINE CLOTHING', address: 'B-01-02 vipul plaza sec-81 greater faridabad', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567890' },
+    { name: 'SHIV NARESH', address: '1/3 Kirti Nagar Industrial Area, SatGuru Ram Singh Marg ,New Delhi- 110015', city: 'New Delhi', state: 'New Delhi', description: '', website: 'https://maps.app.goo.gl/AD86xWAXG5x6BCCa7', phone: '9311901627' },
+    { name: 'RETAIL FIRST EDGE PRIVATE LIMITED', address: 'SHOP NO G-13, SAHEEN BAGH, ABUL FAZAL ENCLAVE-', city: 'New Delhi', state: 'New Delhi', description: '', website: 'https://maps.app.goo.gl/23Gmi5LcGaA2ezFh7', phone: '9711502558' },
+    { name: 'SHRI RAM ENTERPRISES', address: 'Piller No-822,Near Bahadurgarh City Metro Station', city: 'Bahadurgarh', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567892' },
+    { name: 'ADHYA ENTERPRISES', address: 'SHOP NO. 9 GANDHI MKT. OPP. PINKY BAKERY', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567893' },
+    { name: 'SHIVA MARKETING', address: 'GF-SCFO-36A', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567894' },
+    { name: 'VAIBHAV ENTERPRISES', address: 'PLOT NO-5 MANDIR WALI GALI AGWANPUR', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567895' },
+    { name: 'NEEL KANTH TEXTILES', address: 'B-45 EAST JYOTI NAGAR', city: 'New Delhi', state: 'New Delhi', description: '', website: 'https://trenz.co.in/', phone: '1234567896' },
+    { name: 'SHIV SHAKTI ENTERPRISES', address: 'SHOP NO-1 LUCKY MARKET ', city: 'Gurgaon', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567897' },
+    { name: 'SACHDEVA RETAILS', address: 'SHOP NO 7 GR.FLOOR ANUPAM PLAZA', city: 'New Delhi', state: 'New Delhi', description: '', website: 'https://trenz.co.in/', phone: '1234567898' },
+    { name: 'TRIBHUWAN FASHIONS', address: 'SHOP NO-G-12 & G-13 AASHIRWAD COMPLEX', city: 'New Delhi', state: 'New Delhi', description: '', website: 'https://trenz.co.in/', phone: '1234567899' },
+    { name: 'SHRI SAI TRADERS', address: 'HOUSE NO 287 SECTOR-17', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567810' },
+    { name: 'VIJAY SONS', address: 'SHOP NO-73 SQUARE MARKET ', city: 'Palwal', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567811' },
+    { name: 'MAA BHAGWATI', address: 'SHOP NO. G-42,PLOT NO. 13-18 ', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567812' },
+    { name: 'SHIV SHANKER TRADING COMPANY', address: 'SHOP NO. 14,15 G.FLOOR. DILKUSH PLAZA', city: 'Gurgaon', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567813' },
+    { name: 'OM SAI ENTERPRISES', address: 'SHOP NO. - 22, SEWAK PARK , POLE NO. - J3565, UTTAM NAGAR', city: 'New Delhi', state: 'New Delhi', description: '', website: 'https://trenz.co.in/', phone: '1234567814' },
+    { name: 'CHIRAG ENTERPRISES', address: 'SHOP NO. 4B C.S.C MARKET', city: 'Gurgaon', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567815' },
+    { name: 'LADLEE', address: 'D-81, MALVIYA NAGAR', city: 'New Delhi', state: 'New Delhi', description: '', website: 'https://trenz.co.in/', phone: '1234567816' },
+    { name: 'GAYATRI ENTERPRISES', address: 'SHOP NO-4-5 IST FLOOR. OPP.MBS', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567817' },
+    { name: 'KUBER ENTERPRISES', address: 'SHOP NO. 1 SHOPPING CENTRE', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567818' },
+    { name: 'NAVYA ENTERPRISES', address: 'SHOP NO. - 22, SEWAK PARK, POLE NO.-J3565, UTTAM NAGAR', city: 'New Delhi', state: 'New Delhi', description: '', website: 'https://trenz.co.in/', phone: '1234567819' },
+    { name: 'KRISHNA ENTERPRISES', address: 'SHOP NO-4-5, IST FLOOR', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567820' },
+    { name: 'GAYATRI COLLECTION', address: 'SHOP NO-4-5, OPP. MBS SCHOOL', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567821' },
+    { name: 'SHIVA MARKETING', address: 'G F-SCFO-36A SEC-19', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567822' },
+    { name: 'SHREE BALAJI ENTERPRISES', address: 'SHOP NO. - G4, GROUND FLOOR, SHOPPING COMPLEX', city: 'Gurgaon', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567823' },
+    { name: 'GANESH ENTERPRISES', address: 'SHOP NO.-1, JAIN MKT., OPP. SYNDICATE BANK', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567824' },
+    { name: 'SHREE MATA JI ENTERPRISES', address: 'SHOP NO-4-5 IST FLOOR OPP. MBS SCHOOL', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567825' },
+    { name: 'PANCHAL FASHION ZONE', address: 'SHOP NO-50 VILLAGE SARAI KHWAJA', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567826' },
+    { name: 'NEELKANTH ENTERPRISES', address: 'PLOT NO-32 GALI NO-2 S.K NO-11', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567827' },
+    { name: 'SHRI RADHE ENTERPRISES', address: 'SHOP NO-4 1ST FLOOR CHOPAL CHOWK ', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567828' },
+    { name: 'SINGH ENTERPRISES', address: 'SHOP NO.-23 G/F, RAMA ROAD, NAJAFGARH ROAD', city: 'New Delhi', state: 'New Delhi', description: '', website: 'https://trenz.co.in/', phone: '1234567829' },
+    { name: 'SACHDEVA RETAILS', address: 'SHOP NO. - 7, GROUND FLOOR, ANUPAM PLAZA', city: 'New Delhi', state: 'New Delhi', description: '', website: 'https://trenz.co.in/', phone: '1234567830' },
+    { name: 'BABA ENTERPRISES', address: 'SHOP NO. - 88A, GROUND FLOOR, SQUARE MARKET', city: 'Palwal', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567831' },
+    { name: 'LALITHA ENTERPRISES', address: 'F-8, 48, ISHAQ MOHALLA, HAKIKAT NAGAR', city: 'Karnal', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567832' },
+    { name: 'N.K.ENTERPRISES', address: 'SHOP NO.-6 G/F, PKT-3, POCKET 4', city: 'New Delhi', state: 'New Delhi', description: '', website: 'https://trenz.co.in/', phone: '1234567833' },
+    { name: 'VEE BEE APPARELS', address: 'SHOP NO. - G-6, RAGHUVANSHI COMPLEX', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567834' },
+    { name: 'PREM ENTERPRISES', address: 'SHOP NO. 17 GR FLOOR', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567835' },
+    { name: 'APEX ENTERPRISES', address: 'SHOP NO 6 GR FLOOR', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567836' },
+    { name: 'MAHALAXMI ENTERPRISES', address: 'SHOP NO-6 IST FLOOR OPP. MBS SCHOOL', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567837' },
+    { name: 'V.SONS', address: 'SHOP NO-43, SQUARE MARKET, OPP.', city: 'Palwal', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567838' },
+    { name: 'JYOTI TEXTILES', address: 'SHOP NO. 9 GR FLOOR OPP. MAHARAJA AGRASEN', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567839' },
+    { name: 'LOVELY ENTERPRISES', address: 'SHOP NO.- 3, H.NO. - 35, C-BLOCK, MOHAN BABA', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567840' },
+    { name: 'SHRI KRISHNA ENTERPRISES', address: 'SHOP NO. - 3, H.NO. - 35, C-BLOCK, MOHAN BABA', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567841' },
+    { name: 'ADITYA ENTERPRISES', address: 'SHOP NO.-4-5 IST FLOOR OPP. MBS SCHOOL', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567842' },
+    { name: 'M/S MAA BHAGWATI', address: 'SHOP NO. G-42, PLOT NO. 13-18, GROUND FLOOR', city: 'Faridabad', state: 'Haryana', description: '', website: 'https://trenz.co.in/', phone: '1234567843' }
+];
+
+        // Unique states for filter buttons
+        const uniqueStates = [...new Set(stores.map(store => store.state))];
+
+        // Generate filter buttons
+        const filterButtonsContainer = document.getElementById('filter-buttons');
+        uniqueStates.forEach(state => {
+            const button = document.createElement('button');
+            button.className = 'filter-button';
+            button.textContent = state;
+            button.onclick = () => filterByState(state);
+            filterButtonsContainer.appendChild(button);
+        });
+
+        // Load store data into the grid
+        stores.forEach(store => addStoreToGrid(store));
+
+        function addStoreToGrid(store) {
+            const storeList = document.getElementById('store-list');
+            const storeCard = document.createElement('div');
+            storeCard.className = 'store-card';
+            storeCard.innerHTML = `
+                <h3>${store.name}</h3>
+                <p>${store.address}, ${store.city}</p>
+            
+                <p>${store.state}</p>
+                <p>${store.phone}</p>
+            
+                <p>${store.description}</p>
+                <button onclick="window.open('${store.website}', '_blank')">Directions</button>
+            `;
+            storeCard.dataset.state = store.state.toLowerCase();
+            storeCard.dataset.storeName = store.name.toLowerCase();
+            storeCard.dataset.storeDescription = store.description.toLowerCase();
+            storeList.appendChild(storeCard);
+        }
+
+        function filterByState(state) {
+            const storeCards = document.querySelectorAll('.store-card');
+            storeCards.forEach(card => {
+                if (card.dataset.state.includes(state.toLowerCase())) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function filterStores() {
+            const query = document.getElementById('search-bar').value.toLowerCase();
+            const storeCards = document.querySelectorAll('.store-card');
+
+            storeCards.forEach(card => {
+                const cardText = card.textContent.toLowerCase();
+
+                if (cardText.includes(query)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Attach search functionality
+        document.getElementById('search-bar').addEventListener('input', filterStores);
+    </script>
+</body>
+</html>
